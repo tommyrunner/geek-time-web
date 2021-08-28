@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-08-24 17:39:44
  * @LastEditors: tommy
- * @LastEditTime: 2021-08-27 09:17:43
+ * @LastEditTime: 2021-08-27 11:56:17
 -->
 <template>
   <div class="content">
@@ -102,16 +102,25 @@ export default {
   padding-right: 5%;
   padding-top: 2%;
   // 适配手机
-  @media (max-width: 300px) {
+  @media (max-width: 750px) {
     flex-direction: column;
   }
   .left {
     width: 80%;
     padding: 1%;
+    @media (max-width: 750px) {
+      width: 80%;
+    }
   }
   .right {
-    width: 20%;
+    width: 18%;
     padding: 1%;
+    @media (max-width: 750px) {
+      width: 80%;
+      position: static;
+    }
+    position: fixed;
+    right: 1%;
     .date {
       width: 100%;
       height: 200px;

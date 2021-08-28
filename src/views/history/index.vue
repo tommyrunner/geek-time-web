@@ -4,10 +4,10 @@
  * @Author: tommy
  * @Date: 2021-08-24 19:44:28
  * @LastEditors: tommy
- * @LastEditTime: 2021-08-26 13:44:16
+ * @LastEditTime: 2021-08-27 12:40:10
 -->
 <template>
   <div>
-    历史
+    <WbItemCard />
   </div>
 </template>

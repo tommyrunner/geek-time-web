@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-08-24 17:39:44
  * @LastEditors: tommy
- * @LastEditTime: 2021-08-26 16:13:52
+ * @LastEditTime: 2021-08-27 12:55:44
  */
 import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
@@ -14,6 +14,7 @@ import '@/styles/style.scss'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+
 const app = createApp(App)
 //自动化注册全局组件
 const requireComponent = require.context('./components', true, /\.vue$/)
