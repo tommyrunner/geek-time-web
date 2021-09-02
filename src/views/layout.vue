@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-08-24 17:39:44
  * @LastEditors: tommy
- * @LastEditTime: 2021-08-27 11:56:17
+ * @LastEditTime: 2021-09-01 16:25:37
 -->
 <template>
   <div class="content">
@@ -20,27 +20,34 @@
     </div>
   </div>
   <div class="text">
-    <div class="left">
-      <router-view></router-view>
+    <div class="right" v-if="routers.some((item) => item.path === navPath)">
+      <a href="/app.apk" download="app.apk" class="dev">
+        <span>去下载app</span>
+        <img src="~@/assets/img/app_dow.png" alt="" />
+      </a>
     </div>
-    <div class="right">
-      <div class="date">日历</div>
-      <div class="dev">广告</div>
+    <div class="left">
+      <router-view ref="routerView"></router-view>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter, onBeforeRouteUpdate } from 'vue-router'
+interface ILayoutRouters {
+  path: String
+  title: String
+}
 export default {
   setup() {
     const router = useRouter()
     const navPath = ref<string>(router.currentRoute.value.fullPath)
-    let routers = [
+    let routers: Array<ILayoutRouters> = [
       { path: '/home', title: '主页' },
       { path: '/history', title: '历史' }
     ]
+    const routerView = ref()
     // 点击跳转路由
     function navTo(path: string) {
       router.push({ path: path })
@@ -49,7 +56,7 @@ export default {
     onBeforeRouteUpdate((to) => {
       navPath.value = to.path
     })
-    return { routers, navTo, navPath, date: new Date() }
+    return { routers, navTo, navPath, date: new Date(), routerView }
   }
 }
 </script>
@@ -68,7 +75,9 @@ export default {
   background: #fff;
   -webkit-box-shadow: 0 2px 4px 0 rgba(83, 83, 83, 0.253);
   box-shadow: 0 2px 4px 0 rgba(83, 83, 83, 0.226);
-
+  width: 100%;
+  position: fixed;
+  z-index: 100;
   .icon {
     display: flex;
     justify-content: center;
@@ -97,10 +106,10 @@ export default {
   }
 }
 .text {
+  padding-top: 64px;
   display: flex;
   padding-left: 5%;
   padding-right: 5%;
-  padding-top: 2%;
   // 适配手机
   @media (max-width: 750px) {
     flex-direction: column;
@@ -109,14 +118,15 @@ export default {
     width: 80%;
     padding: 1%;
     @media (max-width: 750px) {
-      width: 80%;
+      width: 100%;
     }
   }
   .right {
     width: 18%;
     padding: 1%;
+    // 适配手机
     @media (max-width: 750px) {
-      width: 80%;
+      width: 100%;
       position: static;
     }
     position: fixed;
@@ -124,13 +134,26 @@ export default {
     .date {
       width: 100%;
       height: 200px;
-      border: 1px solid sienna;
     }
     .dev {
       margin-top: 18px;
       width: 100%;
-      height: 20px;
-      border: 1px solid sienna;
+      height: 280px;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      align-items: center;
+      &:hover {
+        cursor: pointer;
+      }
+      img {
+        width: 200px;
+        height: 200px;
+      }
+      span {
+        font-weight: bolder;
+        color: black;
+      }
     }
   }
 }

@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-08-27 12:56:57
  * @LastEditors: tommy
- * @LastEditTime: 2021-08-27 14:29:09
+ * @LastEditTime: 2021-09-01 18:11:16
  */
 import http from './http'
 
@@ -22,15 +22,16 @@ interface IApiGetTypesSize {
 }
 export const getTypesSize = (params: IApiGetTypesSize) => http('type', { params })
 // 课程简介
-interface IApiGetClassInfo {
+interface IApiGetArticleInfo {
   id: number
 }
-export const getClassInfo = (params: IApiGetClassInfo) => http('info', { params })
+export const getArticleInfo = (params: IApiGetArticleInfo) => http('info', { params })
 // 课程文章列表
-interface IApiGetClassList {
+interface IApiGetArticleMenuList {
   id: number
 }
-export const getClassList = (params: IApiGetClassList) => http('article/list', { params })
+export const getArticleMenuList = (params: IApiGetArticleMenuList) => http('article/list', { params })
+export const getArticleMenuInfoList = (params: IApiGetArticleMenuList) => http('article/list1', { params })
 // 文章ID查数据
 interface IApiGetArticleById {
   id: number

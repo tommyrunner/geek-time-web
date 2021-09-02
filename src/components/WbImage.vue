@@ -4,10 +4,10 @@
  * @Author: tommy
  * @Date: 2021-08-27 16:00:10
  * @LastEditors: tommy
- * @LastEditTime: 2021-08-27 17:17:38
+ * @LastEditTime: 2021-08-28 20:07:43
 -->
 <template>
-  <el-image :src="src" :fit="'cover'">
+  <el-image :src="src" :fit="fit">
     <template #placeholder>
       <div class="image-slot">
         <img src="~@/assets/logo.png" alt="加载中..." />
@@ -27,6 +27,10 @@ export default {
     src: {
       type: String,
       default: ''
+    },
+    fit: {
+      type: String,
+      default: 'cover'
     }
   },
   data() {

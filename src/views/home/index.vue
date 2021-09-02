@@ -4,57 +4,62 @@
  * @Author: tommy
  * @Date: 2021-08-24 19:44:28
  * @LastEditors: tommy
- * @LastEditTime: 2021-08-27 17:55:00
+ * @LastEditTime: 2021-09-02 20:29:26
 -->
 <template>
   <div class="top">
     <div class="top-card">
-      <el-carousel ref="card">
+      <el-carousel @click="toDetail" ref="card" @change="cardChange($event, item)">
         <el-carousel-item v-for="item in newDataListCard" :key="item">
-          <div class="card-img">
+          <div class="card-img" @click="toDetail(item)">
             <span class="title">{{ item.title }}</span>
             <WbImage :src="item.cover_2" />
           </div>
         </el-carousel-item>
       </el-carousel>
+      <div class="card-text" ref="cardText" v-if="newDataListCard[cardIndex]">
+        <span class="font-title" :title="newDataListCard[cardIndex].title">{{ newDataListCard[cardIndex].title }}</span>
+        <span class="font-note">{{ newDataListCard[cardIndex].intro }}</span>
+      </div>
     </div>
     <div class="top-list">
       <div class="top-list-item" v-for="item in newDataListCardList" :key="item">
-        <span class="font-title" @click="fff" :title="item.title">{{ item.title }}</span>
+        <span @click="toDetail(item)" class="font-title" :title="item.title">{{ item.title }}</span>
         <span class="font-note">{{ item.intro }}</span>
       </div>
     </div>
   </div>
   <div class="list" v-loading="listLoading">
-    <WbItemCard v-for="item in nowDataListAll" :key="item.id" :listObj="item" />
+    <WbItemCard @itemClick="toDetail(item)" v-for="item in nowDataListAll" :key="item.id" :listObj="item" />
+    <span v-if="listLoading">加载中....</span>
   </div>
 </template>
 <script lang="ts">
 import { getNewList } from '@/api/index'
-import { AllLoading } from '@/utils'
+import { mainLoading } from '@/utils'
 import { reactive, onMounted, ref } from 'vue'
-import WbImage from '@/components/WbImage.vue'
-import func from 'vue-editor-bridge'
+import { randDate, randNow } from './home'
+import { useRouter } from 'vue-router'
 export default {
-  components: { WbImage },
-  setup() {
+  setup(props: any) {
     // ref获取组件
+    const router = useRouter()
     let card = ref<any>(null)
+    let cardText = ref<any>(null)
     const newDataListCard: Array<any> = reactive<Array<any>>([])
     const newDataListCardList: Array<any> = reactive<Array<any>>([])
     const nowDataListAll: Array<any> = reactive<Array<any>>([])
     let listLoading = ref<any>(false)
+    let cardIndex = ref<number>(0)
     // 计算一个随机数-每天不一样
-    const randDate = parseInt(String(17 - new Date().getDate() / 2))
-    const randNow = parseInt(String(Math.random() * 17)) + 1
     const pageObj = reactive({ page: 1 })
     onMounted(() => {
-      const loading = AllLoading()
+      const loading = mainLoading()
       //获取头部数据
       getNewList({ rand: randDate, page: 1 })
         .then((res) => {
           res.data.forEach((item: Object, index: number) => {
-            if (index <= 4) newDataListCard.push(item)
+            if (index < 4) newDataListCard.push(item)
             else newDataListCardList.push(item)
           })
           // 获取数据后初始化轮播图为第一页
@@ -68,18 +73,62 @@ export default {
       // 获取列表
       getListAll()
     })
+    // 跳转到详细界面
+    function toDetail(item: any) {
+      // console.log(item)
+      router.push({ path: '/detail', query: { id: item.id } })
+    }
     function getListAll() {
-      listLoading = true
-      getNewList({ rand: randNow, page: pageObj.page })
-        .then((res) => {
-          nowDataListAll.length = 0
-          nowDataListAll.push(...res.data)
-          listLoading = false
-        })
-        .catch((e) => {
-          listLoading = false
-          console.log(e)
-        })
+      return new Promise((resolve, rejest) => {
+        listLoading.value = true
+        getNewList({ rand: randNow, page: pageObj.page })
+          .then((res) => {
+            // nowDataListAll.length = 0
+            nowDataListAll.push(...res.data)
+            listLoading.value = false
+            resolve(res)
+          })
+          .catch((e) => {
+            listLoading.value = false
+            console.log(e)
+            rejest(e)
+          })
+      })
+    }
+    function cardChange(index: number) {
+      cardIndex.value = index
+      cardText.value.classList.add('card-animation')
+      setTimeout(() => {
+        cardText.value.classList.remove('card-animation')
+      }, 400)
+    }
+    // win的滚动监听底部
+    window.addEventListener('scroll', testScroll) //监听页面滚动
+    let isSr = true
+    let isDowSr = false
+    let nowScroll = 0
+    function testScroll() {
+      let scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop
+      let domHight = document.getElementsByClassName('top')[0].clientHeight + document.getElementsByClassName('list')[0].clientHeight - 800
+      // 是否是下滚动
+      if (scrollTop > nowScroll) {
+        nowScroll = scrollTop //更新-下滚动;
+        isDowSr = true
+      }
+      if (scrollTop < nowScroll) {
+        nowScroll = scrollTop //更新-上滚动;
+        isDowSr = false
+      }
+      if (domHight < scrollTop && isSr && isDowSr) {
+        isSr = false
+        getListAll()
+          .then((res) => {
+            isSr = true
+          })
+          .catch((e) => {
+            isSr = true
+          })
+      }
     }
     return {
       // 轮播图数据
@@ -90,8 +139,15 @@ export default {
       nowDataListAll,
       // 轮播组件
       card,
+      cardText,
       // 列表加载
-      listLoading
+      listLoading,
+      // 切换轮播图
+      cardChange,
+      // 轮播图坐标
+      cardIndex,
+      // 跳转到详细
+      toDetail
     }
   }
 }
@@ -99,12 +155,25 @@ export default {
 <style lang="scss" scoped>
 .top {
   width: 100%;
-  height: 300px;
+  height: 440px;
   margin-bottom: 18px;
   display: flex;
+  // 适配手机
+  @media (max-width: 750px) {
+    flex-direction: column;
+    height: auto;
+  }
+  background: $color-note-bg;
+  padding-top: 18px;
   .top-card {
     width: 60%;
+    // 适配手机
+    @media (max-width: 750px) {
+      width: 100%;
+      margin-bottom: 18px;
+    }
     height: 100%;
+    padding-top: 18px;
     .el-carousel {
       /deep/.el-carousel__button {
         background: $color-theme;
@@ -124,6 +193,15 @@ export default {
         z-index: 100;
       }
     }
+    .card-animation {
+      animation: showList 1s;
+    }
+    .card-text {
+      margin-top: 18px;
+      .font-note {
+        margin-top: 18px;
+      }
+    }
   }
   .top-list {
     flex: 1;
@@ -133,15 +211,32 @@ export default {
       margin-bottom: 12px;
       display: flex;
       flex-direction: column;
-      line-height: 24px;
-      .font-title:hover {
-        cursor: pointer;
-        text-decoration: underline;
+      .font-title {
+        margin-bottom: 12px;
+        &:hover {
+          cursor: pointer;
+          text-decoration: underline;
+        }
       }
     }
   }
 }
 .list {
   width: 100%;
+  text-align: center;
+}
+@keyframes showList {
+  0% {
+    opacity: 0;
+    margin-left: 10px;
+  }
+  50% {
+    opacity: 0.5;
+    margin-left: 5px;
+  }
+  100% {
+    opacity: 1;
+    margin-left: 0px;
+  }
 }
 </style>

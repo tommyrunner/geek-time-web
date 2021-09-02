@@ -4,26 +4,26 @@
  * @Author: tommy
  * @Date: 2021-08-27 10:35:05
  * @LastEditors: tommy
- * @LastEditTime: 2021-08-27 18:01:23
+ * @LastEditTime: 2021-09-02 14:28:16
 -->
 <template>
   <div class="item-content">
-    <WbImage :src="listObj.cover_2" />
+    <WbImage :src="listObj.cover_2" :fit="'fill'" />
     <div class="text">
-      <span class="font-title">{{ listObj.title }}</span>
+      <span class="font-title" @click="clickTitle()">{{ listObj.title }}</span>
       <span class="font-note">
         {{ listObj.intro }}
       </span>
       <div class="font-note msg">
         <span>时间: {{ fromDate(listObj.time) }}</span>
-        <span>作者:xxxx</span>
-        <span>xxx</span>
+        <span>作者: {{ listObj.author_name }}</span>
+        <span>{{ listObj.column_unit }}</span>
       </div>
       <div class="line-h"></div>
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
 import { fromDate } from '@/utils'
 export default {
   name: 'Wbitemcard',
@@ -33,14 +33,16 @@ export default {
       defalut: () => {}
     }
   },
-  data() {
-    return {}
+  setup(props: any, context: any) {
+    function clickTitle() {
+      context.emit('itemClick')
+    }
+    return { clickTitle }
   },
-
   mounted() {},
 
   methods: {
-    fromDate(time) {
+    fromDate(time: number) {
       return fromDate(time * 1000)
     }
   }
@@ -50,12 +52,21 @@ export default {
 .item-content {
   display: flex;
   height: 120px;
+  @media (max-width: 750px) {
+    height: 160px;
+    align-items: center;
+  }
   width: 100%;
-  margin-bottom: 18px;
+  margin-bottom: 28px;
   /deep/ .el-image__error,
   .el-image {
     width: 220px;
     transition: 0.6s;
+    // 适配手机
+    @media (max-width: 750px) {
+      width: 120px;
+      height: 50%;
+    }
   }
   .item-img {
     width: 220px;
@@ -70,13 +81,18 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+    text-align: left;
     margin-left: 18px;
     overflow: hidden;
-    .font-title:hover {
-      cursor: pointer;
-      text-decoration: underline;
+    .font-title {
+      margin-bottom: 18px;
+      &:hover {
+        cursor: pointer;
+        text-decoration: underline;
+      }
     }
     .msg {
+      margin-top: 18px;
       display: flex;
       span {
         margin-right: 18px;

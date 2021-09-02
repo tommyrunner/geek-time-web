@@ -1,4 +1,5 @@
 $color-theme: #e6a23c;
+$color-note-bg: #fafafa;
 
 .font-title {
   font-weight: bold;
@@ -10,7 +11,7 @@ $color-theme: #e6a23c;
 }
 .font-note {
   font-weight: 500;
-  font-size: 12px;
+  font-size: 14px;
   color: #999;
   overflow: hidden;
   text-overflow: ellipsis;
