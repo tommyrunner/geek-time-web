@@ -4,13 +4,10 @@
  * @Author: tommy
  * @Date: 2021-09-01 15:33:41
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-02 16:33:19
+ * @LastEditTime: 2021-09-04 18:14:17
 -->
 <template>
   <div class="detail-content">
-    <div class="left" ref="textHtml">
-      <WbMarkdown v-loading="htmlLoading" ref="textHtml" class="left" :articleInfoObj="articleInfoObj" v-if="articleInfoObj.content" />
-    </div>
     <div class="right">
       <div class="top">
         <WbImage class="wb_image" :src="articleObj.cover_1" />
@@ -34,6 +31,9 @@
         ></el-tree>
       </div>
     </div>
+    <div class="left" ref="textHtml">
+      <WbMarkdown v-loading="htmlLoading" ref="textHtml" class="left" :articleInfoObj="articleInfoObj" v-if="articleInfoObj.content" />
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -41,6 +41,7 @@ import { getArticleInfo, getArticleMenuInfoList, getArticleById } from '@/api'
 import { nextTick, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { fromDate, fromBase64, mainLoading } from '@/utils'
+import { ArticleEntity, IArticleEntity } from '@/utils/articleEntity'
 import WbMarkdown from '@/components/WbMarkdown.vue'
 import { ElMessage } from 'element-plus'
 export default {
@@ -65,6 +66,11 @@ export default {
       getArticleInfo({ id: articleId })
         .then((res) => {
           articleObj = Object.assign(articleObj, res.data)
+          // 记录历史
+          let articleStore = new ArticleEntity()
+          //  记录事件
+          articleObj.historyTime = parseInt(String(new Date().getTime() / 1000))
+          articleStore.add(articleObj).catch((e) => {})
           // 获取目录
           return getArticleMenuInfoList({ id: articleId })
         })
@@ -143,10 +149,15 @@ export default {
   font-size: 14px;
   width: 100%;
   display: flex;
+  // 适配手机
+  @media (max-width: 750px) {
+    flex-direction: column;
+  }
   .left {
     width: 100%;
     min-height: 50%;
     text-align: center;
+    overflow: auto;
     padding: 18px;
   }
   .html-animation {
@@ -154,7 +165,15 @@ export default {
   }
   .right {
     position: absolute;
+    // 适配手机
+    @media (max-width: 750px) {
+      position: static;
+    }
     width: 20%;
+    // 适配手机
+    @media (max-width: 750px) {
+      width: 100%;
+    }
     right: 10px;
     animation: showRight 0.6s;
     .top {

@@ -4,20 +4,30 @@
  * @Author: tommy
  * @Date: 2021-08-26 11:24:10
  * @LastEditors: tommy
- * @LastEditTime: 2021-08-26 13:39:27
+ * @LastEditTime: 2021-09-03 16:25:11
 -->
 <template>
-  <el-input :class="['search', search ? '' : 'search-value']" placeholder="搜索" size="mini" prefix-icon="el-icon-search" v-model="search">
+  <el-input
+    @change="onSearch"
+    :class="['search', search ? '' : 'search-value']"
+    placeholder="搜索"
+    size="mini"
+    prefix-icon="el-icon-search"
+    v-model="search"
+  >
   </el-input>
 </template>
-<script>
+<script lang="ts">
 import { ref } from 'vue'
 export default {
   name: 'WbSearch',
 
-  setup() {
+  setup(props: any, context: any) {
     let search = ref('')
-    return { search }
+    function onSearch() {
+      context.emit('onSearch', search.value)
+    }
+    return { search, onSearch }
   },
 
   mounted() {},

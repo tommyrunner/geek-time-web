@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-09-02 14:53:54
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-02 16:30:55
+ * @LastEditTime: 2021-09-04 18:17:42
 -->
 <template>
   <div class="markdown-content">
@@ -34,6 +34,7 @@ export default {
   position: relative;
   text-align: left;
   margin-top: 28px;
+  width: 100%;
   animation: showHtml 0.6s;
   img,
   video {
@@ -68,6 +69,9 @@ body {
   max-width: 860px;
   margin: 0 auto;
   padding: 20px 30px 100px;
+  @media (max-width: 750px) {
+    padding: 0;
+  }
 }
 
 #write p {

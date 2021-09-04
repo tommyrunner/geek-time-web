@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-08-24 17:39:44
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-01 16:25:37
+ * @LastEditTime: 2021-09-04 17:30:01
 -->
 <template>
   <div class="content">
@@ -13,7 +13,7 @@
       <span>GeekTime</span>
     </div>
     <div class="menu">
-      <WbSearch />
+      <WbSearch @onSearch="onSearch" />
       <span v-for="item in routers" :class="[navPath === item.path ? 'span-on' : '']" :key="item.path" @click="navTo(item.path)">{{
         item.title
       }}</span>
@@ -35,6 +35,7 @@
 <script lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter, onBeforeRouteUpdate } from 'vue-router'
+import { bus, Bus } from '@/utils/mitt'
 interface ILayoutRouters {
   path: String
   title: String
@@ -56,7 +57,13 @@ export default {
     onBeforeRouteUpdate((to) => {
       navPath.value = to.path
     })
-    return { routers, navTo, navPath, date: new Date(), routerView }
+    // 搜索
+    function onSearch(value: string) {
+      if (router.currentRoute.value.path === '/search') {
+        bus.emit(Bus.bus_search, value)
+      } else router.push({ path: '/search', query: { value } })
+    }
+    return { routers, navTo, navPath, date: new Date(), routerView, onSearch }
   }
 }
 </script>

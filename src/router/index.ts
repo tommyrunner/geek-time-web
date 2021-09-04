@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-08-24 17:39:44
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-01 15:57:02
+ * @LastEditTime: 2021-09-03 16:20:20
  */
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 
@@ -29,6 +29,11 @@ const routes: Array<RouteRecordRaw> = [
         path: '/detail',
         name: 'Detail',
         component: () => import('@/views/detail/index.vue')
+      },
+      {
+        path: '/search',
+        name: 'Search',
+        component: () => import('@/views/search/index.vue')
       }
     ]
   },

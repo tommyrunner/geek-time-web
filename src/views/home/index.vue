@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-08-24 19:44:28
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-02 20:29:26
+ * @LastEditTime: 2021-09-04 18:02:36
 -->
 <template>
   <div class="top">
@@ -37,9 +37,10 @@
 <script lang="ts">
 import { getNewList } from '@/api/index'
 import { mainLoading } from '@/utils'
-import { reactive, onMounted, ref } from 'vue'
+import { reactive, onMounted, onUnmounted, ref } from 'vue'
 import { randDate, randNow } from './home'
 import { useRouter } from 'vue-router'
+import { WindowListening } from '@/views/layout'
 export default {
   setup(props: any) {
     // ref获取组件
@@ -51,6 +52,7 @@ export default {
     const nowDataListAll: Array<any> = reactive<Array<any>>([])
     let listLoading = ref<any>(false)
     let cardIndex = ref<number>(0)
+    let windowListening: any = null
     // 计算一个随机数-每天不一样
     const pageObj = reactive({ page: 1 })
     onMounted(() => {
@@ -70,13 +72,17 @@ export default {
           console.log(e)
           loading.close()
         })
-      // 获取列表
-      getListAll()
+      getListAll().then((res) => {
+        windowListening = new WindowListening(getListAll, (): number => {
+          let domHight = document.getElementsByClassName('top')[0].clientHeight + document.getElementsByClassName('list')[0].clientHeight - 700
+          return domHight
+        })
+        windowListening.start()
+      })
     })
     // 跳转到详细界面
     function toDetail(item: any) {
-      // console.log(item)
-      router.push({ path: '/detail', query: { id: item.id } })
+      if (item.id) router.push({ path: '/detail', query: { id: item.id } })
     }
     function getListAll() {
       return new Promise((resolve, rejest) => {
@@ -102,34 +108,38 @@ export default {
         cardText.value.classList.remove('card-animation')
       }, 400)
     }
-    // win的滚动监听底部
-    window.addEventListener('scroll', testScroll) //监听页面滚动
-    let isSr = true
-    let isDowSr = false
-    let nowScroll = 0
-    function testScroll() {
-      let scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop
-      let domHight = document.getElementsByClassName('top')[0].clientHeight + document.getElementsByClassName('list')[0].clientHeight - 800
-      // 是否是下滚动
-      if (scrollTop > nowScroll) {
-        nowScroll = scrollTop //更新-下滚动;
-        isDowSr = true
-      }
-      if (scrollTop < nowScroll) {
-        nowScroll = scrollTop //更新-上滚动;
-        isDowSr = false
-      }
-      if (domHight < scrollTop && isSr && isDowSr) {
-        isSr = false
-        getListAll()
-          .then((res) => {
-            isSr = true
-          })
-          .catch((e) => {
-            isSr = true
-          })
-      }
-    }
+    // window.addEventListener('scroll', testScroll) //监听页面滚动
+    // let isSr = true
+    // let isDowSr = false
+    // let nowScroll = 0
+    // function testScroll() {
+    //   let scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop
+    //   let domHight = document.getElementsByClassName('top')[0].clientHeight + document.getElementsByClassName('list')[0].clientHeight - 800
+    //   // 是否是下滚动
+    //   if (scrollTop > nowScroll) {
+    //     nowScroll = scrollTop //更新-下滚动;
+    //     isDowSr = true
+    //   }
+    //   if (scrollTop < nowScroll) {
+    //     nowScroll = scrollTop //更新-上滚动;
+    //     isDowSr = false
+    //   }
+    //   if (domHight < scrollTop && isSr && isDowSr) {
+    //     isSr = false
+    //     getListAll()
+    //       .then((res) => {
+    //         isSr = true
+    //       })
+    //       .catch((e) => {
+    //         isSr = true
+    //       })
+    //   }
+    // }
+    // 界面注销回到
+    onUnmounted(() => {
+      // 注销滚动监听
+      windowListening.stop()
+    })
     return {
       // 轮播图数据
       newDataListCard,

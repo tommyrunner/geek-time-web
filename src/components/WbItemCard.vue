@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-08-27 10:35:05
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-02 14:28:16
+ * @LastEditTime: 2021-09-04 18:08:09
 -->
 <template>
   <div class="item-content">
@@ -15,9 +15,10 @@
         {{ listObj.intro }}
       </span>
       <div class="font-note msg">
-        <span>时间: {{ fromDate(listObj.time) }}</span>
+        <span>作品时间: {{ fromDate(listObj.time) }}</span>
         <span>作者: {{ listObj.author_name }}</span>
         <span>{{ listObj.column_unit }}</span>
+        <span v-if="listObj.historyTime">历史时间: {{ fromDate(listObj.historyTime) }}</span>
       </div>
       <div class="line-h"></div>
     </div>
@@ -51,7 +52,8 @@ export default {
 <style lang="scss" scoped>
 .item-content {
   display: flex;
-  height: 120px;
+  width: 100%;
+  height: 140px;
   @media (max-width: 750px) {
     height: 160px;
     align-items: center;
@@ -86,6 +88,7 @@ export default {
     overflow: hidden;
     .font-title {
       margin-bottom: 18px;
+      width: 100%;
       &:hover {
         cursor: pointer;
         text-decoration: underline;
