@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-08-24 19:44:28
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-04 17:51:47
+ * @LastEditTime: 2021-09-06 14:05:11
 -->
 <template>
   <div class="history-list" v-loading="listLoading">
@@ -63,6 +63,7 @@ export default {
     function clearAll() {
       const loading = mainLoading()
       articleStore.clear().then((res) => {
+        historyDataListAll.length = 0
         loading.close()
         ElMessage.success('清空成功!')
       })

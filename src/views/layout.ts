@@ -4,8 +4,9 @@
  * @Author: tommy
  * @Date: 2021-09-03 12:00:26
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-03 16:02:36
+ * @LastEditTime: 2021-09-06 14:33:22
  */
+import { bus, Bus } from '@/utils/mitt'
 var _domHight: number
 var _isSr: boolean
 var _isDowSr: boolean
@@ -33,9 +34,18 @@ export class WindowListening {
     window.addEventListener('scroll', this.testScroll) //监听页面滚动
     // return this
   }
+  toScroll(scrollX: number, scrollY: number) {
+    return new Promise((res, rej) => {
+      setTimeout(() => {
+        window.scrollTo(scrollX, scrollY)
+        res('跳转成功!')
+      }, 1500)
+    })
+  }
   testScroll() {
     let scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop
     // let domHight = document.getElementsByClassName('history-list')[0].clientHeight - 700
+    bus.emit(Bus.bus_windowListen, scrollTop)
     // 是否是下滚动
     if (scrollTop > _nowScroll) {
       _nowScroll = scrollTop //更新-下滚动;

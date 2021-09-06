@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-09-01 15:33:41
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-04 18:14:17
+ * @LastEditTime: 2021-09-06 13:50:48
 -->
 <template>
   <div class="detail-content">
@@ -15,7 +15,7 @@
           <span class="font-title">{{ articleObj.title }}</span>
           <span>作者:{{ articleObj.author_name }}</span>
           <span>{{ articleObj.subtitle }}</span>
-          <span>{{ fromDate(articleObj.time) }}</span>
+          <span>{{ fromDate(articleObj.time * 1000) }}</span>
         </div>
       </div>
       <div class="menu">
@@ -32,18 +32,20 @@
       </div>
     </div>
     <div class="left" ref="textHtml">
-      <WbMarkdown v-loading="htmlLoading" ref="textHtml" class="left" :articleInfoObj="articleInfoObj" v-if="articleInfoObj.content" />
+      <WbMarkdown v-loading="htmlLoading" ref="textHtml" :articleInfoObj="articleInfoObj" v-if="articleInfoObj.content" />
     </div>
   </div>
 </template>
 <script lang="ts">
-import { getArticleInfo, getArticleMenuInfoList, getArticleById } from '@/api'
-import { nextTick, onMounted, reactive, ref } from 'vue'
+import { getArticleInfo, getArticleMenuInfoList, getArticleMenuList, getArticleById } from '@/api'
+import { nextTick, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { fromDate, fromBase64, mainLoading } from '@/utils'
 import { ArticleEntity, IArticleEntity } from '@/utils/articleEntity'
 import WbMarkdown from '@/components/WbMarkdown.vue'
 import { ElMessage } from 'element-plus'
+import { WindowListening } from '@/views/layout'
+import { bus, Bus } from '@/utils/mitt'
 export default {
   components: { WbMarkdown },
   setup() {
@@ -56,6 +58,8 @@ export default {
     let articleObj = reactive<any>({})
     let articleInfoObj = reactive<any>({})
     let defaultTrees = reactive<Array<number>>([])
+    let windowListening: any = null
+    let changeTime = ref(0)
     const menuListProps = {
       children: 'children',
       label: 'title'
@@ -66,28 +70,81 @@ export default {
       getArticleInfo({ id: articleId })
         .then((res) => {
           articleObj = Object.assign(articleObj, res.data)
-          // 记录历史
-          let articleStore = new ArticleEntity()
-          //  记录事件
-          articleObj.historyTime = parseInt(String(new Date().getTime() / 1000))
-          articleStore.add(articleObj).catch((e) => {})
           // 获取目录
           return getArticleMenuInfoList({ id: articleId })
         })
         .then((res) => {
           menuList.push(...res.data)
-          // 默认选择第一个
-          clickMenuList(menuList[0]['children'][0])
-          // 默认展开第一个
-          defaultTrees.length = 0
-          defaultTrees.push(menuList[0]['children'][0].aid)
+          // 检查历史
+          let articleStore = new ArticleEntity()
+          const findArticleObj = articleStore.getArticlesById(articleObj.id) as IArticleEntity
+          let nowMenuObj = null
+          // 记录历史
+          if (findArticleObj && findArticleObj.nowMenuId) {
+            // 如果存在--打开历史
+            nowMenuObj = findMenuChild(menuList, findArticleObj.nowMenuId)
+            if (findArticleObj.nowPro) {
+              //自动填充滚动进度
+              const loading = mainLoading()
+              ElMessage.warning('正在跳转到上次阅读位置...')
+              windowListening.toScroll(0, findArticleObj.nowPro).then((res: any) => {
+                loading.close()
+              })
+            }
+          } else {
+            //  记录事件
+            articleObj.historyTime = parseInt(String(new Date().getTime() / 1000))
+            articleStore.add(articleObj).catch((e) => {})
+            nowMenuObj = menuList[0]['children'][0]
+          }
+          if (nowMenuObj.aid) {
+            // 默认选择第一个
+            clickMenuList(nowMenuObj)
+            // 默认展开第一个
+            defaultTrees.length = 0
+            defaultTrees.push(nowMenuObj.aid)
+          }
           loading.close()
         })
         .catch((e) => {
           console.log(e)
           loading.close()
         })
+      // 滚动监听
+      windowListening = new WindowListening(
+        () => {},
+        (): number => {
+          let domHight = document.getElementsByClassName('left')[0].clientHeight - 700
+          return domHight
+        }
+      )
+      windowListening.start()
+      bus.on(Bus.bus_windowListen, (value) => {
+        // 记录滚动条
+        savePro(value)
+      })
     })
+    // 记录滚动
+    function savePro(value: any) {
+      changeTime.value = new Date().getTime()
+      // 定时器    过滤密集输入
+      setTimeout(() => {
+        if (new Date().getTime() - changeTime.value >= 1000) {
+          // 记录历史
+          let articleStore = new ArticleEntity()
+          articleStore.update(articleObj.id, 0, value)
+        }
+      }, 1000)
+    }
+    // 循环获取列表中
+    function findMenuChild(arr: any, menuId: number) {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i]['children'] && arr[i]['children'].length > 0) {
+          const obj = arr[i].children.find((item: { aid: number }) => item.aid === menuId)
+          if (obj) return obj
+        }
+      }
+    }
     // 点击菜单
     function clickMenuList(e: any) {
       if (e.aid && e.aid !== articleInfoObj.aid) {
@@ -109,6 +166,10 @@ export default {
               // 高亮
               menuTree.value.setCurrentKey(e.aid)
               htmlLoading.value = false
+              // 历史存储
+              // 记录历史
+              let articleStore = new ArticleEntity()
+              articleStore.update(articleObj.id, e.aid)
             })
           })
           .catch((e) => {
@@ -125,6 +186,9 @@ export default {
         textHtml.value.classList.remove('html-animation')
       }, 400)
     }
+    onUnmounted(() => {
+      windowListening.stop()
+    })
     return {
       menuList,
       menuListProps,

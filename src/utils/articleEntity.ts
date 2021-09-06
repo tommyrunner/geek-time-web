@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-09-03 09:08:20
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-04 17:50:07
+ * @LastEditTime: 2021-09-06 14:02:07
  */
 /**
  * 文章接口
@@ -27,6 +27,8 @@ export interface IArticleEntity {
   subtitle: string
   time: number
   historyTime: number
+  nowMenuId: number
+  nowPro: number
   title: string
 }
 export class ArticleEntity {
@@ -55,17 +57,19 @@ export class ArticleEntity {
       }, 400)
     })
   }
+  // 根据id查询
+  getArticlesById(articleId: number) {
+    return this.articles.find((item) => item.id === articleId)
+  }
   // 添加
   add(article: IArticleEntity) {
     return new Promise((res, rej) => {
-      if (this.articles.some((item) => item.id === article.id)) {
-        rej('已经存在!')
-      } else {
-        this.articles.push(article)
-        // 储存
-        localStorage.setItem(articleLocalStorage, JSON.stringify(this.articles))
-        res(this.articles)
-      }
+      let newList: Array<IArticleEntity> = []
+      newList = this.articles.filter((item) => item.id !== article.id)
+      newList.push({ ...article })
+      // 储存
+      localStorage.setItem(articleLocalStorage, JSON.stringify(newList))
+      res(this.articles)
     })
   }
   // 删除
@@ -87,6 +91,19 @@ export class ArticleEntity {
       setTimeout(() => {
         localStorage.setItem(articleLocalStorage, '[]')
         res('清空成功')
+      }, 400)
+    })
+  }
+  // 更新进度
+  update(articleId: number, nowMenuId?: number, nowPro?: number) {
+    return new Promise((res, rej) => {
+      // 储存
+      setTimeout(() => {
+        let articleObj = this.articles.find((item) => item.id === articleId) as IArticleEntity
+        if (nowMenuId && nowMenuId != 0) articleObj.nowMenuId = nowMenuId
+        if (nowPro && nowPro != 0) articleObj.nowPro = nowPro
+        // 储存
+        localStorage.setItem(articleLocalStorage, JSON.stringify(this.articles))
       }, 400)
     })
   }

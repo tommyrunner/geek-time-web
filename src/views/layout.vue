@@ -4,11 +4,11 @@
  * @Author: tommy
  * @Date: 2021-08-24 17:39:44
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-04 17:30:01
+ * @LastEditTime: 2021-09-06 11:34:26
 -->
 <template>
   <div class="content">
-    <div class="icon">
+    <div class="icon" @click="returnHome">
       <img src="~@/assets/logo.png" />
       <span>GeekTime</span>
     </div>
@@ -63,7 +63,10 @@ export default {
         bus.emit(Bus.bus_search, value)
       } else router.push({ path: '/search', query: { value } })
     }
-    return { routers, navTo, navPath, date: new Date(), routerView, onSearch }
+    function returnHome() {
+      router.push({ path: '/' })
+    }
+    return { routers, navTo, navPath, date: new Date(), routerView, onSearch, returnHome }
   }
 }
 </script>
@@ -90,6 +93,7 @@ export default {
     justify-content: center;
     align-items: center;
     font-weight: bold;
+    cursor: pointer;
     img {
       width: 48px;
       height: 48px;

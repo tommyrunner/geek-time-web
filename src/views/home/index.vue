@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-08-24 19:44:28
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-04 18:02:36
+ * @LastEditTime: 2021-09-05 13:50:59
 -->
 <template>
   <div class="top">
@@ -30,7 +30,7 @@
     </div>
   </div>
   <div class="list" v-loading="listLoading">
-    <WbItemCard @itemClick="toDetail(item)" v-for="item in nowDataListAll" :key="item.id" :listObj="item" />
+    <WbItemCard :imgFit="'cover'" @itemClick="toDetail(item)" v-for="item in nowDataListAll" :key="item.id" :listObj="item" />
     <span v-if="listLoading">加载中....</span>
   </div>
 </template>
@@ -174,7 +174,8 @@ export default {
     height: auto;
   }
   background: $color-note-bg;
-  padding-top: 18px;
+  border-radius: 10px;
+  padding: 18px;
   .top-card {
     width: 60%;
     // 适配手机
@@ -218,7 +219,7 @@ export default {
     padding: 4px 18px;
     overflow: hidden;
     .top-list-item {
-      margin-bottom: 12px;
+      margin-bottom: 22px;
       display: flex;
       flex-direction: column;
       .font-title {

@@ -4,11 +4,11 @@
  * @Author: tommy
  * @Date: 2021-08-27 10:35:05
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-04 18:08:09
+ * @LastEditTime: 2021-09-05 13:52:27
 -->
 <template>
   <div class="item-content">
-    <WbImage :src="listObj.cover_2" :fit="'fill'" />
+    <WbImage :src="listObj.cover_2" :fit="imgFit" />
     <div class="text">
       <span class="font-title" @click="clickTitle()">{{ listObj.title }}</span>
       <span class="font-note">
@@ -32,6 +32,10 @@ export default {
     listObj: {
       type: Object,
       defalut: () => {}
+    },
+    imgFit: {
+      type: String,
+      defalut: 'fill'
     }
   },
   setup(props: any, context: any) {
@@ -53,7 +57,7 @@ export default {
 .item-content {
   display: flex;
   width: 100%;
-  height: 140px;
+  height: 135px;
   @media (max-width: 750px) {
     height: 160px;
     align-items: center;
@@ -94,9 +98,11 @@ export default {
         text-decoration: underline;
       }
     }
+
     .msg {
       margin-top: 18px;
       display: flex;
+      flex: 1;
       span {
         margin-right: 18px;
       }
