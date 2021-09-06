@@ -4,13 +4,18 @@
  * @Author: tommy
  * @Date: 2021-09-01 15:33:41
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-06 13:50:48
+ * @LastEditTime: 2021-09-06 17:29:31
 -->
 <template>
   <div class="detail-content">
     <div class="right">
       <div class="top">
-        <WbImage class="wb_image" :src="articleObj.cover_1" />
+        <div class="wb_image">
+          <WbImage class="wbImage" :src="articleObj.cover_1" />
+          <img @click="onPlayMp3" v-if="!isMp3Play" src="~@/assets/img/mp3_stop.png" alt="" />
+          <img @click="onPlayMp3" v-else src="~@/assets/img/mp3_start.png" alt="" />
+          <audio ref="audioCom" :src="articleInfoObj.audio_download_url" />
+        </div>
         <div class="msg">
           <span class="font-title">{{ articleObj.title }}</span>
           <span>作者:{{ articleObj.author_name }}</span>
@@ -34,6 +39,10 @@
     <div class="left" ref="textHtml">
       <WbMarkdown v-loading="htmlLoading" ref="textHtml" :articleInfoObj="articleInfoObj" v-if="articleInfoObj.content" />
     </div>
+  </div>
+  <div class="bottom">
+    <span @click="toNextPage(false)" v-if="isNextPage(false) && articleInfoObj.content">上一节</span>
+    <span @click="toNextPage(true)" v-if="isNextPage(true) && articleInfoObj.content">下一节</span>
   </div>
 </template>
 <script lang="ts">
@@ -60,6 +69,9 @@ export default {
     let defaultTrees = reactive<Array<number>>([])
     let windowListening: any = null
     let changeTime = ref(0)
+    let menuIds = [] as Array<any>
+    let isMp3Play = ref(false)
+    const audioCom = ref<any>(null)
     const menuListProps = {
       children: 'children',
       label: 'title'
@@ -75,6 +87,8 @@ export default {
         })
         .then((res) => {
           menuList.push(...res.data)
+          // 平铺
+          fromMenu(menuIds, menuList)
           // 检查历史
           let articleStore = new ArticleEntity()
           const findArticleObj = articleStore.getArticlesById(articleObj.id) as IArticleEntity
@@ -179,6 +193,39 @@ export default {
           })
       }
     }
+    // 上一页下一页is:true上否则:下
+    function toNextPage(is: Boolean) {
+      clickMenuList(isNextPage(is))
+    }
+    // 判断是否有上下一节:is:true上否则:下
+    function isNextPage(is: Boolean) {
+      for (let i = 0; i < menuIds.length; i++) {
+        if (menuIds[i].aid === articleInfoObj.aid) {
+          if (is && menuIds[i + 1]) {
+            return menuIds[i + 1]
+          }
+          if (!is && menuIds[i - 1]) {
+            return menuIds[i - 1]
+          }
+        }
+      }
+      return null
+    }
+    function fromMenu(nowList: Array<any>, arr: Array<any>) {
+      arr.forEach((item) => {
+        if (item['children']) {
+          return fromMenu(nowList, item['children'])
+        } else {
+          nowList.push(item)
+        }
+      })
+    }
+    // 播放mp3
+    function onPlayMp3() {
+      isMp3Play.value = !isMp3Play.value
+      if (isMp3Play.value) audioCom.value.play()
+      else audioCom.value.pause()
+    }
     // 动画
     function menuChange() {
       textHtml.value.classList.add('html-animation')
@@ -198,7 +245,12 @@ export default {
       defaultTrees,
       menuTree,
       textHtml,
-      htmlLoading
+      htmlLoading,
+      isNextPage,
+      toNextPage,
+      isMp3Play,
+      onPlayMp3,
+      audioCom
     }
   },
   methods: {
@@ -228,7 +280,8 @@ export default {
     animation: showHtml 0.6s;
   }
   .right {
-    position: absolute;
+    position: fixed;
+    height: 90%;
     // 适配手机
     @media (max-width: 750px) {
       position: static;
@@ -247,6 +300,29 @@ export default {
       display: flex;
       .wb_image {
         width: 40%;
+        position: relative;
+        cursor: pointer;
+        &:hover {
+          .wbImage {
+            filter: blur(2px) brightness(80%) contrast(80%);
+          }
+          img {
+            opacity: 1;
+          }
+        }
+        .wbImage {
+          transition: 0.2s;
+        }
+        img {
+          transition: 0.2s;
+          opacity: 0;
+          width: 50px;
+          height: 50px;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
       }
       .msg {
         width: 50%;
@@ -263,6 +339,8 @@ export default {
       }
     }
     .menu {
+      height: 70%;
+      overflow: auto;
       background: $color-note-bg;
       padding: 10px;
       .el-tree {
@@ -278,6 +356,17 @@ export default {
         text-overflow: ellipsis; /*文本超出三点代替*/
       }
     }
+  }
+}
+.bottom {
+  color: $color-theme;
+  padding-left: 28px;
+  padding-right: 28px;
+  display: flex;
+  justify-content: space-between;
+  span:hover {
+    text-decoration: underline;
+    cursor: pointer;
   }
 }
 @keyframes showRight {

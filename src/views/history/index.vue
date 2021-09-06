@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-08-24 19:44:28
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-06 14:05:11
+ * @LastEditTime: 2021-09-06 14:59:50
 -->
 <template>
   <div class="history-list" v-loading="listLoading">
@@ -12,7 +12,7 @@
       <span @click="returnHome" class="font-note">⇠返回</span>
       <span @click="clearAll" class="font-note">清空历史</span>
     </div>
-    <WbItemCard @click="toDetail(item)" v-for="item in historyDataListAll" :key="item.id" :listObj="item" />
+    <WbItemCard class="wbItemCard" @click="toDetail(item)" v-for="item in historyDataListAll" :key="item.id" :listObj="item" />
     <span v-if="isBottom" class="font-note">到底了哦开学φ(*￣0￣)</span>
   </div>
 </template>
@@ -92,6 +92,12 @@ export default {
     justify-content: space-between;
     &:hover {
       cursor: pointer;
+    }
+  }
+  .wbItemCard {
+    // 适配手机
+    @media (max-width: 750px) {
+      margin-top: 58px;
     }
   }
 }
