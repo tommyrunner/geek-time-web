@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-09-01 15:33:41
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-06 17:29:31
+ * @LastEditTime: 2021-09-06 17:39:11
 -->
 <template>
   <div class="detail-content">
@@ -322,6 +322,15 @@ export default {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
+        }
+        // 适配手机
+        @media (max-width: 750px) {
+          .wbImage {
+            filter: blur(2px) brightness(80%) contrast(80%);
+          }
+          img {
+            opacity: 1;
+          }
         }
       }
       .msg {

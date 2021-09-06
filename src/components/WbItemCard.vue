@@ -4,11 +4,11 @@
  * @Author: tommy
  * @Date: 2021-08-27 10:35:05
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-05 13:52:27
+ * @LastEditTime: 2021-09-06 17:43:44
 -->
 <template>
   <div class="item-content">
-    <WbImage :src="listObj.cover_2" :fit="imgFit" />
+    <WbImage :src="listObj.cover_2" @click="clickTitle()" :fit="imgFit" />
     <div class="text">
       <span class="font-title" @click="clickTitle()">{{ listObj.title }}</span>
       <span class="font-note">

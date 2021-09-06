@@ -4,7 +4,7 @@
  * @Author: tommy
  * @Date: 2021-08-27 14:24:31
  * @LastEditors: tommy
- * @LastEditTime: 2021-09-02 16:29:44
+ * @LastEditTime: 2021-09-06 17:38:41
  */
 import { ElLoading } from 'element-plus'
 import { Base64 } from 'js-base64'
@@ -23,7 +23,7 @@ export const mainLoading = () =>
  */
 export function fromDate(time: number) {
   let date = new Date(time)
-  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}`
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
 }
 /**
  * 格式化base64
